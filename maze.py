@@ -1,7 +1,11 @@
 from random import choice
 from pygame import *
 
+
 init()
+font.init()
+font1 = font.SysFont("Impact", 100)
+game_over_text = font1.render("все, капець", True, (224, 205, 153))
 mixer.init()
 mixer.music.load('jungles.ogg')
 # mixer.music.play()
@@ -57,6 +61,10 @@ class Player(Sprite):
         if len(collide_list) > 0:
             self.rect.x, self.rect.y = old_post
 
+        collide_list = sprite.spritecollide(self, enemys, False, sprite.collide_mask)
+        if len(collide_list) > 0:
+            self.hp -= 100
+
 
 class Enemy(Sprite):
     def __init__(self, sprite_img, width, height, x, y):
@@ -66,7 +74,9 @@ class Enemy(Sprite):
         self.dir_list = ['right', 'left', 'up', 'down']
         self.dir = choice(self.dir_list)
 
+        
     def update(self):
+        old_pos = self.rect.x, self.rect.y
         if self.dir == 'right':
             self.rect.x += self.speed
         elif self.dir == 'left':
@@ -75,6 +85,13 @@ class Enemy(Sprite):
             self.rect.y += self.speed
         elif self.dir == 'down':
             self.rect.y -= self.speed
+
+        collide_list = sprite.spritecollide(self, walls, False, sprite.collide_mask)
+        if len(collide_list) > 0:
+            self.rect.x, self.rect.y = old_pos
+            self.dir = choice(self.dir_list)
+
+
 
 player = Player(player_img, TILESIZE, TILESIZE, 300, 300)
 walls = sprite.Group()
@@ -100,16 +117,25 @@ with open("map.txt", "r") as f:
         y += TILESIZE
         x = 0
 
+
+
 run = True
+finish = False
 
 while run:
     for e in event.get():
         if e.type == QUIT:
             run = False
     window.blit(bg,(0,0))
-
+    if player.hp <= 0:
+        finish = True
+    if sprite.collide_mask(player, gold):
+        finish = True
+        game_win_text = font1.render("супер", True, (224, 205, 153))
+        window.blit(game_win_text, (100, 200))
     all_sprites.draw(window)
-    all_sprites.update()
-    
+    if not finish :
+        all_sprites.update()
+        
     display.update()
     clock.tick(FPS)
