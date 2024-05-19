@@ -19,13 +19,13 @@ window = display.set_mode((WIDTH,HEIGHT))
 FPS = 90
 clock = time.Clock()
 
-bg = image.load('background.jpg')
+bg = image.load('forest_PNG3.png')
 bg = transform.scale(bg,(WIDTH,HEIGHT))
 
-cyborg_img = image.load("cyborg.png")
-player_img = image.load("hero.png")
-wall_img = image.load("wall.png")
-gold_img = image.load("treasure.png")
+cyborg_img = image.load("35-350637_arctic-wolf-sprite-super-mario-world-star-png-removebg-preview.png")
+player_img = image.load("스크린샷+2019-03-18+오후+3.47.57-removebg-preview.png")
+wall_img = image.load("1559585070grass-png-11-removebg-preview.png")
+gold_img = image.load("Carrot-PNG.png")
 all_sprites = sprite.Group()
 
 class Sprite(sprite.Sprite):
@@ -57,7 +57,7 @@ class Player(Sprite):
             self.rect.x += self.speed
 
 
-        collide_list = sprite.spritecollide(self, walls, False, sprite.collide_mask)
+        collide_list = sprite.spritecollide(self, walls, False)
         if len(collide_list) > 0:
             self.rect.x, self.rect.y = old_post
 
@@ -93,7 +93,7 @@ class Enemy(Sprite):
 
 
 
-player = Player(player_img, TILESIZE, TILESIZE, 300, 300)
+player = Player(player_img, TILESIZE-5, TILESIZE-5, 300, 300)
 walls = sprite.Group()
 enemys = sprite.Group()
 
@@ -111,7 +111,7 @@ with open("map.txt", "r") as f:
             if symbol == "g": # стіни
                 gold = Sprite(gold_img, 70, 70, x, y )
             if symbol == "e": 
-                enemys.add(Enemy(cyborg_img, TILESIZE-5, TILESIZE-5, x, y))
+                enemys.add(Enemy(cyborg_img, TILESIZE+5, TILESIZE+5, x, y))
                 
             x += TILESIZE
         y += TILESIZE
@@ -121,21 +121,27 @@ with open("map.txt", "r") as f:
 
 run = True
 finish = False
-
+game_win_text = font1.render("все", True, (200, 100, 153))
+       
 while run:
     for e in event.get():
         if e.type == QUIT:
             run = False
+        
+    window.fill((141, 143, 224))
     window.blit(bg,(0,0))
+    all_sprites.draw(window)
     if player.hp <= 0:
         finish = True
     if sprite.collide_mask(player, gold):
         finish = True
-        game_win_text = font1.render("супер", True, (224, 205, 153))
-        window.blit(game_win_text, (100, 200))
-    all_sprites.draw(window)
+        game_win_text = font1.render("супер", True, (200, 100, 153))
+       
+    
     if not finish :
         all_sprites.update()
+    else:
+        window.blit(game_win_text, (WIDTH /2 - game_win_text.get_width() /2, 200))
         
     display.update()
     clock.tick(FPS)
